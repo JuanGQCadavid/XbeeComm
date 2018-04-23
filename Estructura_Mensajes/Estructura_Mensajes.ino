@@ -1,7 +1,8 @@
 #include <TimerOne.h>
-
+//Verde
 int unsigned numero_xbee = 2;
 int unsigned mine = 0;
+
 
 byte conexiones [2][8] = {{0x00,0x13,0xA2,0x00,0x40,0xB5,0xE7,0x5C},
                           {0x00,0x13,0xA2,0x00,0x40,0xB5,0xEA,0x16}};
@@ -24,13 +25,15 @@ int longitud_cadena(String cadena);
 int longitud_dir(int ente_mensaje);
 bool check_trama();
 void modulo_print(int pos_conexiones);
+void verMensajes();
+String mensajes_recividos = "";
 
-
-boolean debug = false;
+boolean debug = true;
 
 void setup() {
   Timer1.initialize(200);
   Timer1.attachInterrupt(leer);
+  
   Serial3.begin(9600);
   Serial.begin(9600);
 }
@@ -40,7 +43,8 @@ void loop() {
   Serial.println("Hola. Por favor seleccione una opcion.");
   Serial.println("1 -> Enviar mensaje");
   Serial.println("2 -> Verificar Conexion");
-  Serial.println("3 -> Terminar Conexion");
+  Serial.println("3 -> Ver mensajes");
+  Serial.println("4 -> Terminar Conexion");
   
   while(true){
     if (Serial.available() >= 1){
@@ -48,7 +52,7 @@ void loop() {
       Serial.println(eleccion);
       if(eleccion == "1"){Serial.println("Opcion 1");opcion_Enviar_Mensaje();}
       else if(eleccion == "2"){Serial.println("Opcion 2");mostrarModulosDisponibles();}
-      else if(eleccion == "3"){Serial.println("Opcion 3");}
+      else if(eleccion == "3"){Serial.println("Opcion 3");verMensajes();}
       else if(eleccion == "4"){Serial.println("Opcion 4");}
       else{Serial.println("Opcion incorrecta, vea bien las opciones mijo."); break;}
       break;
@@ -59,7 +63,17 @@ void loop() {
   //createTrama(0,"hola");
   //delay(1000);
 }
-
+void verMensajes(){
+  
+  if(data_received == 0){Serial.println("No tiene mensajes nuevos");return;}
+  for(int i = 0; i < data_received ; i = i + 1){
+    Serial.println(messesges[i]);
+  
+  }
+  
+  //Serial.println(mensajes_recividos);
+  
+}
 void mostrarModulosDisponibles(){
   bool conectado = false;
   Serial.println();
@@ -202,7 +216,6 @@ void leer(){
     byte dir_source[8];
     byte dir_source_16 [2];
     byte data_space = 0;
-    String mensaje = "";
     byte id_from;
       
     // Nos aseguramos que ha llegado el mensaje completo
@@ -249,11 +262,6 @@ void leer(){
         Serial.print("TYPE -> ");
         Serial.print(type, HEX);
         Serial.print(" ");
-      }
-      
-      if(type == 0x8B){
-        mensajeConfirmado(time_recivido);
-      
       }
       
       for (int i = 0; i < 8; i = i + 1){
@@ -323,24 +331,22 @@ void leer(){
         Serial.print(" ");
       }
 
-
+      String mensaje = "";
       do{
         byte dara_recive = (byte) Serial3.read();
         if(dara_recive == 0xFF)break;
         char dara_recive_b = dara_recive;
-        String mensaje = String(dara_recive_b);
-        if(debug){
-          Serial.print(mensaje);
-        }
+        mensaje = mensaje + String(dara_recive_b);
+        Serial.print(mensaje);
       }while(true);
       
       if(debug){
         Serial.print(mensaje);
       }
-      
+      Serial.print(mensaje);
       Serial.print("");
       //Serial.println("DONE");
-     
+      //mensajes_recividos = mensajes_recividos + "\n" + mensaje;
       time_recivido = millis();
       messesges[data_received] = mensaje;
       millis_messeges[index_millis] = time_recivido;
@@ -355,7 +361,7 @@ void leer(){
       data_received = data_received + 1;
       index_millis = index_millis + 1;
       index_data_gram = index_data_gram + 1;
-      
+      Serial.println("Nuevo Mensaje guardado.");
       confirmar_recivido();
       Serial.println("*********************");
       Serial.print("");
@@ -489,8 +495,5 @@ byte tramaMensajeCast(String cadena){
   return number;
 
 }
-
-
-
 
 
