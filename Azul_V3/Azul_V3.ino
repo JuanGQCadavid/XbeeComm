@@ -1,4 +1,4 @@
-//verde,azul
+  //verde,azul
 int unsigned numero_xbee = 2;
 int unsigned mine = 1;
 #include <TimerOne.h>
