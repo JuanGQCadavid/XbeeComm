@@ -28,7 +28,7 @@ void modulo_print(int pos_conexiones);
 void verMensajes();
 String mensajes_recividos = "";
 
-boolean debug = true;
+boolean debug = false;
 
 void setup() {
   Timer1.initialize(200);
